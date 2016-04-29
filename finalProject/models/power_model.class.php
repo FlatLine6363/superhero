@@ -13,7 +13,7 @@ class PowerModel {
         $this->db = Database::getDatabase();
         $this->dbConnection = $this->db->getConnection();
         $this->tblHeroes = $this->db->getHeroesTable();
-        
+
 
         //Escapes special characters in a string for use in an SQL statement. This stops SQL inject in POST vars. 
         foreach ($_POST as $key => $value) {
@@ -50,32 +50,45 @@ class PowerModel {
 
         $sql = "SELECT * FROM " . $this->tblHeroes;
 
-        //execute the query
-        $query = $this->dbConnection->query($sql);
+        try {
+            //execute the query
+            $query = $this->dbConnection->query($sql);
 
-        // if the query failed, return false. 
-        if (!$query)
+            // if the query failed, return false. 
+            if (!$query)
+                return false;
+
+            //if the query succeeded, but no book was found.
+            if ($query->num_rows == 0)
+                return 0;
+
+            //handle the result
+            //create an array to store all returned powers
+            $powers = array();
+
+            //loop through all rows in the returned recordsets
+            while ($obj = $query->fetch_object()) {
+                $power = new Power($obj->id, stripslashes($obj->name), stripslashes($obj->ability), stripslashes($obj->description), stripslashes($obj->price), stripslashes($obj->quantAvailable));
+
+                //set the id for the power
+                $power->setId($obj->id);
+
+                //add the power into the array
+                $powers[] = $power;
+            }
+            return $powers;
+
+            $errmsg = $this->dbconnection->error;
+            throw new DatabaseException($e->getMessage());
+        } catch (DatabaseException $e) {
+            $error = new Error();
+            $error->display($e->getMessage());
             return false;
-
-        //if the query succeeded, but no book was found.
-        if ($query->num_rows == 0)
-            return 0;
-
-        //handle the result
-        //create an array to store all returned powers
-        $powers = array();
-
-        //loop through all rows in the returned recordsets
-        while ($obj = $query->fetch_object()) {
-            $power = new Power($obj->id,stripslashes($obj->name), stripslashes($obj->ability), stripslashes($obj->description), stripslashes($obj->price), stripslashes($obj->quantAvailable));
-
-            //set the id for the power
-            $power->setId($obj->id);
-
-            //add the power into the array
-            $powers[] = $power;
+        } catch (Exception $e) {
+            $error = new Error();
+            $error->display("An unexpected error has occurred.");
+            return false;
         }
-        return $powers;
     }
 
     /*
@@ -83,51 +96,65 @@ class PowerModel {
      * and returns a power object. Return false if failed.
      * 
      */
+
     //search the database for powers that match words in names. Return an array of powers if succeed; false otherwise.
     public function search_power($terms) {
         $terms = explode(" ", $terms); //explode multiple terms into an array
         //select statement for AND serach
         $sql = "SELECT * FROM " . $this->tblHeroes . " WHERE (1 ";
 
-        foreach ($terms as $term) {
-            $sql .= "AND name LIKE '%" . $term . "%'";
+        try {
+            foreach ($terms as $term) {
+                $sql .= "AND name LIKE '%" . $term . "%'";
+            }
+
+            $sql .= ")";
+
+            //execute the query
+            $query = $this->dbConnection->query($sql);
+
+            // the search failed, return false. 
+            if (!$query) {
+                return false;
+            }
+
+            //search succeeded, but no power was found.
+            if ($query->num_rows == 0) {
+                return 0;
+            }
+
+            //search succeeded, and found at least 1 power found.
+            //create an array to store all the returned powers
+            $powers = array();
+
+            //loop through all rows in the returned recordsets
+            while ($obj = $query->fetch_object()) {
+                $power = new Power($obj->id, $obj->name, $obj->ability, $obj->description, $obj->price);
+
+                //set the id for the power
+                $power->setId($obj->id);
+
+                //add the power into the array
+                $powers[] = $power;
+
+            return $powers;
         }
-
-        $sql .= ")";
-        
-        //execute the query
-        $query = $this->dbConnection->query($sql);
-
-        // the search failed, return false. 
-        if (!$query)
+            $errmsg = $this->dbconnection->error;
+            throw new DatabaseException($e->getMessage());
+        } catch (DatabaseException $e) {
+            $error = new Error();
+            $error->display($e->getMessage());
             return false;
-
-        //search succeeded, but no power was found.
-        if ($query->num_rows == 0)
-            return 0;
-
-        //search succeeded, and found at least 1 power found.
-        //create an array to store all the returned powers
-        $powers = array();
-
-        //loop through all rows in the returned recordsets
-        while ($obj = $query->fetch_object()) {
-            $power = new Power($obj->id,$obj->name, $obj->ability, $obj->description, $obj->price);
-
-            //set the id for the power
-            $power->setId($obj->id);
-
-            //add the power into the array
-            $powers[] = $power;
+        } catch (Exception $e) {
+            $error = new Error();
+            $error->display("An unexpected error has occurred.");
+            return false;
         }
-        return $powers;
     }
 
-    
-    
     public function view_power($id) {
         //the select sql statement
-        $sql = "SELECT * FROM " . $this->tblHeroes . "," . 
+        $sql = "SELECT * FROM " . $this->tblHeroes . "," .
                 " WHERE " . $this->tblHeroes . ".category=" .
                 " AND " . $this->tblHeroes . ".id='$id'";
 
@@ -138,8 +165,7 @@ class PowerModel {
             $obj = $query->fetch_object();
 
             //create a power object
-            $power = new Power(stripslashes($obj->name), stripslashes($obj->ability), stripslashes($obj->description), 
-                    stripslashes($obj->price), stripslashes($obj->quantAvailable));
+            $power = new Power(stripslashes($obj->name), stripslashes($obj->ability), stripslashes($obj->description), stripslashes($obj->price), stripslashes($obj->quantAvailable));
 
             //set the id for the power
             $power->setId($obj->id);
@@ -149,4 +175,5 @@ class PowerModel {
 
         return false;
     }
+
 }
