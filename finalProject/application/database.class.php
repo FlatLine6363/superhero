@@ -32,6 +32,10 @@ class Database {
             $error = new Error();
             $error->display($e->getMessage());
             exit;
+        } catch (Exception $e) {
+            $error = new Error();
+            $error->display("An unexpected error has occurred.");
+            return false;
         }
     }
 
