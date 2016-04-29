@@ -8,7 +8,7 @@ class Error {
         <!DOCTYPE html>
         <html>
             <head>
-                <title>Guestbook Error</title>
+                <title>Sign in Error</title>
                 <link rel="stylesheet" href="www/css/styles.css" type="text/css" />
             </head>
             <body>
@@ -21,7 +21,7 @@ class Error {
                         <td valign='top' align='left'>
                             <h3> We're sorry, but an error has occurred.</h3>
                             <?php echo $message; ?>
-                            <p><a href="<?= BASE_URL ?>/index.php/guest/show">Sign In</a></p>
+                            <p><a href="<?= BASE_URL ?>/index.php/guest/index">Back to Sign In</a></p>
                         </td>
                     </tr>
                 </table>
