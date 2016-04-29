@@ -21,7 +21,7 @@ class Error {
                         <td valign='top' align='left'>
                             <h3> We're sorry, but an error has occurred.</h3>
                             <?php echo $message; ?>
-                            <p><a href="<?= BASE_URL ?>/index.php/guest/show">Sign In</a></p>
+                            <p><a href="<?= BASE_URL ?>/index.php/guest/index">Back to Sign in Form</a></p>
                         </td>
                     </tr>
                 </table>
