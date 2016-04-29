@@ -50,32 +50,45 @@ class PowerModel {
 
         $sql = "SELECT * FROM " . $this->tblHeroes;
 
-        //execute the query
-        $query = $this->dbConnection->query($sql);
+        try {
+            //execute the query
+            $query = $this->dbConnection->query($sql);
 
-        // if the query failed, return false. 
-        if (!$query)
+            // if the query failed, return false. 
+            if (!$query)
+                return false;
+
+            //if the query succeeded, but no book was found.
+            if ($query->num_rows == 0)
+                return 0;
+
+            //handle the result
+            //create an array to store all returned powers
+            $powers = array();
+
+            //loop through all rows in the returned recordsets
+            while ($obj = $query->fetch_object()) {
+                $power = new Power($obj->id, stripslashes($obj->name), stripslashes($obj->ability), stripslashes($obj->description), stripslashes($obj->price), stripslashes($obj->quantAvailable));
+
+                //set the id for the power
+                $power->setId($obj->id);
+
+                //add the power into the array
+                $powers[] = $power;
+            }
+            return $powers;
+
+            $errmsg = $this->dbconnection->error;
+            throw new DatabaseException($e->getMessage());
+        } catch (DatabaseException $e) {
+            $error = new Error();
+            $error->display($e->getMessage());
             return false;
-
-        //if the query succeeded, but no book was found.
-        if ($query->num_rows == 0)
-            return 0;
-
-        //handle the result
-        //create an array to store all returned powers
-        $powers = array();
-
-        //loop through all rows in the returned recordsets
-        while ($obj = $query->fetch_object()) {
-            $power = new Power($obj->id,stripslashes($obj->name), stripslashes($obj->ability), stripslashes($obj->description), stripslashes($obj->price), stripslashes($obj->quantAvailable));
-
-            //set the id for the power
-            $power->setId($obj->id);
-
-            //add the power into the array
-            $powers[] = $power;
+        } catch (Exception $e) {
+            $error = new Error();
+            $error->display("An unexpected error has occurred.");
+            return false;
         }
-        return $powers;
     }
 
     /*
@@ -89,41 +102,54 @@ class PowerModel {
         //select statement for AND serach
         $sql = "SELECT * FROM " . $this->tblHeroes . " WHERE (1 ";
 
-        foreach ($terms as $term) {
-            $sql .= "AND name LIKE '%" . $term . "%'";
+         try {
+            foreach ($terms as $term) {
+                $sql .= "AND name LIKE '%" . $term . "%'";
+            }
+
+            $sql .= ")";
+
+            //execute the query
+            $query = $this->dbConnection->query($sql);
+
+            // the search failed, return false. 
+            if (!$query) {
+                return false;
+            }
+
+            //search succeeded, but no power was found.
+            if ($query->num_rows == 0) {
+                return 0;
+            }
+
+            //search succeeded, and found at least 1 power found.
+            //create an array to store all the returned powers
+            $powers = array();
+
+            //loop through all rows in the returned recordsets
+            while ($obj = $query->fetch_object()) {
+                $power = new Power($obj->id, $obj->name, $obj->ability, $obj->description, $obj->price);
+
+                //set the id for the power
+                $power->setId($obj->id);
+
+                //add the power into the array
+                $powers[] = $power;
+
+            return $powers;
         }
-
-        $sql .= ")";
-        
-        //execute the query
-        $query = $this->dbConnection->query($sql);
-
-        // the search failed, return false. 
-        if (!$query)
+            $errmsg = $this->dbconnection->error;
+            throw new DatabaseException($e->getMessage());
+        } catch (DatabaseException $e) {
+            $error = new Error();
+            $error->display($e->getMessage());
             return false;
-
-        //search succeeded, but no power was found.
-        if ($query->num_rows == 0)
-            return 0;
-
-        //search succeeded, and found at least 1 power found.
-        //create an array to store all the returned powers
-        $powers = array();
-
-        //loop through all rows in the returned recordsets
-        while ($obj = $query->fetch_object()) {
-            $power = new Power($obj->id,$obj->name, $obj->ability, $obj->description, $obj->price);
-
-            //set the id for the power
-            $power->setId($obj->id);
-
-            //add the power into the array
-            $powers[] = $power;
+        } catch (Exception $e) {
+            $error = new Error();
+            $error->display("An unexpected error has occurred.");
+            return false;
         }
-        return $powers;
     }
-
-    
     
     public function view_power($id) {
         //the select sql statement
