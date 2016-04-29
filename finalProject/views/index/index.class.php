@@ -31,11 +31,11 @@ class Index {
                         </tr>
                         <tr>
                             <th>Birth Date</th>
-                            <td><input name="birth_date" size="15" /></td>
+                            <td><input name="birth_date" size="15" placeholder="mm/dd/yyyy" /></td>
                         </tr>
                         <tr>
                             <th>Email</th>
-                            <td><input name="email" size="30" /></td>
+                            <td><input name="email" size="30" placeholder="example@domain.com" /></td>
                         </tr>
                         <tr>
                             <th></th>
