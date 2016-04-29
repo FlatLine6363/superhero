@@ -8,7 +8,7 @@ class Error {
         <!DOCTYPE html>
         <html>
             <head>
-                <title>Guestbook Error</title>
+                <title>Sign In Error</title>
                 <link rel="stylesheet" href="www/css/styles.css" type="text/css" />
             </head>
             <body>
