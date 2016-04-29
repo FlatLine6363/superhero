@@ -44,8 +44,8 @@
 
             }
             ?>
-             <p><a href="<?= BASE_URL ?>">Home</a></p>
-            <p><a href="index.php?action=index">Sign Guest Book</a></p>
+            <p><a href="<?= BASE_URL ?>">Home</a></p>
+            <p><a href="<?= BASE_URL ?>/index.php/guest/index">Sign Guest Book</a></p>
             <p><a href="<?= BASE_URL ?>/power/index">Go to power list</a></p>
     </body>
 </html>
