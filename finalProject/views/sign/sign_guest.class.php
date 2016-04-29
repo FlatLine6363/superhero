@@ -24,7 +24,7 @@ class SignGuest{
             <tr> 
             </head>
             <body>
-                <h2>YOU'RE SIGNED UP!</h2>
+                <h2>YOU'RE SIGNED IN!</h2>
                 <h3>Thank you for signing our guest book. Feel free to battle each other.</h3>
                 <?php
                 }//end display function
